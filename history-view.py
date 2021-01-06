@@ -19,6 +19,8 @@ def get_frame(data, offset, window_size):
     
     return data[offset:end]
 
+# https://stackoverflow.com/questions/24072790/detect-key-press-in-python
+
 def render_frame(data, offset, window_size=5):
     frame_data = get_frame(data, offset, window_size)
 
