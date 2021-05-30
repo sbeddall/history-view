@@ -69,23 +69,23 @@ def test_rdr_output_short_frame():
     output_text = test_rdr.render_frame(input_frame)
     lines_in_data = output_text.splitlines()
 
-    assert len(lines_in_data) == 13
+    assert len(lines_in_data) == 14
 
     for line in input_frame:
         assert line in output_text
 
-
 def test_rdr_console_output():
     test_rdr = HistoryRenderer(get_test_data(), frame_size=5, terminal_size="")
-    expected_output = """sentence - 9  - index 1
-sentence - 8  - index 2
-sentence - 7  - index 3
-sentence - 6  - index 4
-sentence - 5  - index 5"""
+    expected_output = """-->  sentence - 9  - index 1
+-->  sentence - 8  - index 2
+-->  sentence - 7  - index 3
+-->  sentence - 6  - index 4
+-->  sentence - 5  - index 5"""
 
     input_frame = test_rdr.get_frame_at_index(1)
     output_text = test_rdr.render_frame(input_frame)
 
+    print(output_text)
     assert expected_output in output_text
 
 

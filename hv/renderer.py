@@ -7,18 +7,21 @@ from .globals import *
 # fmt: off
 # template expects data dictionary with arguments of
 #  data list[str]
-#  terminal_size int 
+#  terminal_size int
+#  history_length int
 DISPLAY_TEMPLATE = Template(
 """
-{{ ("-" * terminal_size ) }}
-Command History:
-Width is {{ terminal_size }}
+🐐🐐 Command History:
+There are {{ history_length }} items(s) to observe. Rendering tWidth at {{ terminal_size }}. 
+
+{{ top_line }}
 
 {% for cmd in data -%}
-    {{ cmd }}
+   -->  {{ cmd }}
 {% endfor %}
 
-{{ ("-" * terminal_size ) }}
+{{ bottom_line }}
+
 """)
 
 EMPTY_DATA_TEMPLATE = Template(
@@ -63,11 +66,19 @@ class HistoryRenderer:
     def t_size(self):
         return shutil.get_terminal_size()
 
+    def __calculate_line(self, dc) # TODO: make this handle whether or not the arrow should appear.
+        terminal_size = self.t_size()
+        result = ("-" * (terminal_size - 4)) + dc + "--"
+        return result
+        
+
+
     def render_current_frame(self):
         return self.render_frame(frame=self.get_frame())
 
     def render_frame(self, frame):
-        return self.template.render(data=frame, terminal_size=self.t_size().columns)
+        return self.template.render(data=frame, terminal_size=self.t_size().columns, bottom_line = self.__calculate_line("\\/"), top_line=self.__calculate_line("/\\"))
+
 
     def get_frame(self):
         """
