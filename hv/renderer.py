@@ -20,10 +20,21 @@ Width is {{ terminal_size }}
 
 {{ ("-" * terminal_size ) }}
 """)
+
+EMPTY_DATA_TEMPLATE = Template(
+"""
+{{ ("-" * terminal_size ) }}
+Well that's unfortunate.
+
+I can't find your seach history. I looked here:
+
+I'd `ctrl-c` to exit if I were you. 
+{{ ("-" * terminal_size ) }}
+""")
 # fmt: on
 
 
-def InvalidConfigurationException(BaseException):
+class InvalidConfigurationException(BaseException):
     pass
 
 
@@ -34,6 +45,13 @@ class HistoryRenderer:
 
         self.frame_size = kwargs.get("frame_size", DEFAULT_FRAME_SIZE)
         self.template = kwargs.get("template", DISPLAY_TEMPLATE)
+
+        if not data:
+            raise InvalidConfigurationException(
+                "The data passed to the renderer needs to be populated. Renderer saw {} items in data array.".format(
+                    len(self.data)
+                )
+            )
 
         if self.frame_size > len(data):
             raise InvalidConfigurationException(

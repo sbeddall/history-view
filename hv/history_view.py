@@ -2,7 +2,6 @@ import argparse
 import os
 import sys
 
-right_arrow = "➡"
 from .renderer import HistoryRenderer
 
 # abstraction layer where console detection needs to kick in and return a list of the console history
@@ -33,9 +32,9 @@ def get_frame(data, offset, window_size):
 def render_frame(data, offset, window_size=5):
     frame_data = get_frame(data, offset, window_size)
 
-    suffix = "\033[F" * ((len(frame_data) - 1) or 1)
+    # suffix = "\033[F" * ((len(frame_data) - 1) or 1)
 
-    rendering_string = "\r" + "\n".join(frame_data) + suffix
+    rendering_string = "\r" + "\n".join(frame_data)  # + suffix
 
     sys.stdout.write(rendering_string)
     sys.stdout.flush()

@@ -1,4 +1,6 @@
-from hv import HistoryRenderer
+from hv import HistoryRenderer, InvalidConfigurationException
+import pytest
+import re
 import pdb
 
 TEST_DATA = [
@@ -47,6 +49,19 @@ def test_rdr_no_bad_decrement():
     pass
 
 
+def test_rdr_bad_frame():
+    t_data = get_test_data()
+    with pytest.raises(InvalidConfigurationException) as exception:
+        test_rdr = HistoryRenderer(t_data, frame_size=11)
+    assert "is bigger than the size of the data array" in str(exception)
+
+
+def test_rdr_no_data():
+    with pytest.raises(InvalidConfigurationException) as exception:
+        test_rdr = HistoryRenderer([], frame_size=5)
+    assert "needs to be populated" in str(exception)
+
+
 def test_rdr_output_short_frame():
     test_rdr = HistoryRenderer(get_test_data(), frame_size=5)
 
@@ -58,6 +73,20 @@ def test_rdr_output_short_frame():
 
     for line in input_frame:
         assert line in output_text
+
+
+def test_rdr_console_output():
+    test_rdr = HistoryRenderer(get_test_data(), frame_size=5, terminal_size="")
+    expected_output = """sentence - 9  - index 1
+sentence - 8  - index 2
+sentence - 7  - index 3
+sentence - 6  - index 4
+sentence - 5  - index 5"""
+
+    input_frame = test_rdr.get_frame_at_index(1)
+    output_text = test_rdr.render_frame(input_frame)
+
+    assert expected_output in output_text
 
 
 def test_rdr_output_long_frame():
