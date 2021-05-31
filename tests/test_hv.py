@@ -49,6 +49,22 @@ def test_rdr_no_bad_decrement():
     pass
 
 
+def test_rows_proceeding_true_case():
+    pass
+
+
+def test_rows_proceeding_false_case():
+    pass
+
+
+def test_rows_preceeding_true_case():
+    pass
+
+
+def test_rows_preceeding_false_case():
+    pass
+
+
 def test_rdr_bad_frame():
     t_data = get_test_data()
     with pytest.raises(InvalidConfigurationException) as exception:
@@ -73,6 +89,7 @@ def test_rdr_output_short_frame():
 
     for line in input_frame:
         assert line in output_text
+
 
 def test_rdr_console_output():
     test_rdr = HistoryRenderer(get_test_data(), frame_size=5, terminal_size="")

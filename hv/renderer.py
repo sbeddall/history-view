@@ -66,19 +66,30 @@ class HistoryRenderer:
     def t_size(self):
         return shutil.get_terminal_size()
 
-    def __calculate_line(self, dc) # TODO: make this handle whether or not the arrow should appear.
-        terminal_size = self.t_size()
+    # are there more rows out of frame before or after
+    def __rows_preceding(self, index):
+        pass 
+
+    def __rows_proceeding(self, index):
+        pass
+
+    def __calculate_line(
+        self, dc
+    ):
+        terminal_size = self.t_size().columns
         result = ("-" * (terminal_size - 4)) + dc + "--"
         return result
-        
-
 
     def render_current_frame(self):
         return self.render_frame(frame=self.get_frame())
 
     def render_frame(self, frame):
-        return self.template.render(data=frame, terminal_size=self.t_size().columns, bottom_line = self.__calculate_line("\\/"), top_line=self.__calculate_line("/\\"))
-
+        return self.template.render(
+            data=frame,
+            terminal_size=self.t_size().columns,
+            bottom_line=self.__calculate_line("\\/"),
+            top_line=self.__calculate_line("/\\"),
+        )
 
     def get_frame(self):
         """
