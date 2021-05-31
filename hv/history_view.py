@@ -48,4 +48,7 @@ def console_loop(data):
 
 def console_entry():
     data = get_console_history()
-    console_loop(data)
+
+    renderer = HistoryRenderer(data)
+
+    print(renderer.render_current_frame())

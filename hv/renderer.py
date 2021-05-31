@@ -10,19 +10,18 @@ from .globals import *
 #  terminal_size int
 #  history_length int
 DISPLAY_TEMPLATE = Template(
-"""
-🐐🐐 Command History:
+"""🐐🐐 Command History:
 There are {{ history_length }} items(s) to observe. Rendering tWidth at {{ terminal_size }}. 
 
 {{ top_line }}
 
-{% for cmd in data -%}
-   -->  {{ cmd }}
+{% for cmd in data -%}   -->  {{ cmd }}
 {% endfor %}
-
 {{ bottom_line }}
-
 """)
+
+DOWN_ARROW="\\/"
+UP_ARROW="/\\"
 
 EMPTY_DATA_TEMPLATE = Template(
 """
@@ -43,11 +42,12 @@ class InvalidConfigurationException(BaseException):
 
 class HistoryRenderer:
     def __init__(self, data, **kwargs):
-        self.data = data
-        self.current_frame = 0
+        self.data = [cmd.strip() for cmd in data]
 
         self.frame_size = kwargs.get("frame_size", DEFAULT_FRAME_SIZE)
         self.template = kwargs.get("template", DISPLAY_TEMPLATE)
+        self.current_frame = kwargs.get("start_frame", 0)
+        self.previous_frame = None
 
         if not data:
             raise InvalidConfigurationException(
@@ -66,30 +66,48 @@ class HistoryRenderer:
     def t_size(self):
         return shutil.get_terminal_size()
 
-    # are there more rows out of frame before or after
-    def __rows_preceding(self, index):
-        pass 
+    def __rows_preceeding(self, index=None):
+        return (index or self.current_frame) > 0
 
-    def __rows_proceeding(self, index):
-        pass
+    def __rows_proceeding(self, index=None):
+        begin_idx = index or self.current_frame
+        end_idx = begin_idx + self.frame_size
 
-    def __calculate_line(
-        self, dc
-    ):
+        return any(self.data[end_idx:])
+
+    def __calculate_line(self, direction):
         terminal_size = self.t_size().columns
-        result = ("-" * (terminal_size - 4)) + dc + "--"
+
+        if direction == UP_ARROW:
+            if not self.__rows_proceeding():
+                direction = "=="
+
+        if direction == DOWN_ARROW:
+            if not self.__rows_preceeding():
+                direction = "=="
+
+        result = "--" + direction + ("-" * (terminal_size - 8)) + direction + "--"
         return result
 
     def render_current_frame(self):
-        return self.render_frame(frame=self.get_frame())
+        return self.render_frame(reversed(self.get_frame()))
 
     def render_frame(self, frame):
-        return self.template.render(
+        """
+        Renders a frame to text. Leaves the value output set in class variable
+        `previous_frame`. This will allow the next render to overwrite the previous output
+        appropriately.
+        """
+        rendered_frame = self.template.render(
             data=frame,
             terminal_size=self.t_size().columns,
-            bottom_line=self.__calculate_line("\\/"),
-            top_line=self.__calculate_line("/\\"),
+            bottom_line=self.__calculate_line(DOWN_ARROW),
+            top_line=self.__calculate_line(UP_ARROW),
+            history_length=len(self.data),
         )
+        self.previous_frame = rendered_frame
+
+        return rendered_frame
 
     def get_frame(self):
         """
@@ -120,6 +138,7 @@ class HistoryRenderer:
     def increment_frame(self):
         """
         Advances the frame in the positive direction. Moving first element of viewable frame towards the end.
+        Never moves beyond safe bound.
 
         Given a basic array of data, it would looks like...
 
@@ -127,12 +146,13 @@ class HistoryRenderer:
         [<--->---------] --> [-<--->--------]
          0                    01
         """
-        if not current_frame > (len(self.data) - self.frame_size):
+        if not self.current_frame >= (len(self.data) - self.frame_size):
             self.current_frame += 1
 
     def decrement_frame(self):
         """
         Retreats the frame in the negaive direction, bringing the first element in frame closer to 0.
+        Never moves beyond safe bound.
 
         Given a basic array of data, it would looks like...
 

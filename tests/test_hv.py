@@ -3,73 +3,89 @@ import pytest
 import re
 import pdb
 
-TEST_DATA = [
-    "sentence - 10 - index 0 - latest in history, aka the first result if you pressed up.",
-    "sentence - 9  - index 1",
-    "sentence - 8  - index 2",
-    "sentence - 7  - index 3",
-    "sentence - 6  - index 4",
-    "sentence - 5  - index 5",
-    "sentence - 4  - index 6",
-    "sentence - 3  - index 7",
-    "sentence - 2  - index 8",
-    "sentence - 1  - index 9 - earliest in history",
-]
-
-
-def get_test_data():
-    return TEST_DATA[:]
-
 
 def test_hv_basic_import():
     from hv import console_entry
 
 
-def test_rdr_no_bad_increment():
-    pass
+def test_rdr_good_increment_cases(test_data):
+    very_edge = HistoryRenderer(test_data, frame_size=5, start_frame=4)
+    very_edge.increment_frame()
+    assert very_edge.current_frame == 5
+
+    standard = HistoryRenderer(test_data, frame_size=5, start_frame=0)
+    standard.increment_frame()
+    assert standard.current_frame == 1
 
 
-def test_rdr_good_increment():
-    pass
+def test_rdr_bad_increment_cases(test_data):
+    very_edge = HistoryRenderer(test_data, frame_size=5, start_frame=5)
+    very_edge.increment_frame()
+    assert very_edge.current_frame == 5
+
+    outside_bounds = HistoryRenderer(test_data, frame_size=5, start_frame=10)
+    outside_bounds.increment_frame()
+    assert outside_bounds.current_frame == 10
 
 
-def test_rdr_stuck_increment():
-    pass
+def test_rdr_good_decrement_cases(test_data):
+    standard = HistoryRenderer(test_data, frame_size=5, start_frame=9)
+    standard.decrement_frame()
+    assert standard.current_frame == 8
+
+    outside_bounds = HistoryRenderer(test_data, frame_size=5, start_frame=10)
+    outside_bounds.decrement_frame()
+    assert outside_bounds.current_frame == 9
+
+    very_edge = HistoryRenderer(test_data, frame_size=5, start_frame=1)
+    very_edge.decrement_frame()
+    assert very_edge.current_frame == 0
 
 
-def test_rdr_stuck_decrement():
-    pass
+def test_rdr_bad_decrement_cases(test_data):
+    over_edge = HistoryRenderer(test_data, frame_size=5, start_frame=0)
+    over_edge.decrement_frame()
+    assert over_edge.current_frame == 0
 
 
-def test_rdr_good_decrement():
-    pass
+def test_rows_proceeding_true_cases(test_data):
+    edge_of_acceptable = HistoryRenderer(test_data, frame_size=5, start_frame=4)
+    standard_start = HistoryRenderer(test_data, frame_size=5)
+
+    assert edge_of_acceptable._HistoryRenderer__rows_proceeding()
+    assert standard_start._HistoryRenderer__rows_proceeding()
 
 
-def test_rdr_no_bad_decrement():
-    pass
+def test_rows_proceeding_false_cases(test_data):
+    frame_bigger_than_content = HistoryRenderer(test_data, frame_size=10, start_frame=5)
+    start_out_of_scope = HistoryRenderer(test_data, frame_size=5, start_frame=11)
+    edge_of_bad = HistoryRenderer(test_data, frame_size=5, start_frame=6)
+
+    assert not frame_bigger_than_content._HistoryRenderer__rows_proceeding()
+    assert not start_out_of_scope._HistoryRenderer__rows_proceeding()
+    assert not edge_of_bad._HistoryRenderer__rows_proceeding()
 
 
-def test_rows_proceeding_true_case():
-    pass
+def test_rows_preceeding_true_case(test_data):
+    easy_check = HistoryRenderer(test_data, frame_size=5, start_frame=2)
+    edge_check = HistoryRenderer(test_data, frame_size=5, start_frame=1)
+
+    assert easy_check._HistoryRenderer__rows_preceeding()
+    assert edge_check._HistoryRenderer__rows_preceeding()
 
 
-def test_rows_proceeding_false_case():
-    pass
+def test_rows_preceeding_false_case(test_data):
+    easy_check = HistoryRenderer(test_data, frame_size=5)
+    out_of_bounds_check = HistoryRenderer(test_data, frame_size=5, start_frame=11)
+
+    assert not easy_check._HistoryRenderer__rows_preceeding()
+    assert out_of_bounds_check._HistoryRenderer__rows_preceeding()
 
 
-def test_rows_preceeding_true_case():
-    pass
-
-
-def test_rows_preceeding_false_case():
-    pass
-
-
-def test_rdr_bad_frame():
-    t_data = get_test_data()
+def test_rdr_bad_frame(test_data):
     with pytest.raises(InvalidConfigurationException) as exception:
-        test_rdr = HistoryRenderer(t_data, frame_size=11)
-    assert "is bigger than the size of the data array" in str(exception)
+        test_rdr = HistoryRenderer(test_data, frame_size=11)
+    assert "11 is bigger than the size of the data array" in str(exception)
 
 
 def test_rdr_no_data():
@@ -78,21 +94,21 @@ def test_rdr_no_data():
     assert "needs to be populated" in str(exception)
 
 
-def test_rdr_output_short_frame():
-    test_rdr = HistoryRenderer(get_test_data(), frame_size=5)
+def test_rdr_output_short_frame(test_data):
+    test_rdr = HistoryRenderer(test_data, frame_size=5)
 
     input_frame = test_rdr.get_frame()
     output_text = test_rdr.render_frame(input_frame)
     lines_in_data = output_text.splitlines()
 
-    assert len(lines_in_data) == 14
+    assert len(lines_in_data) == 13
 
     for line in input_frame:
         assert line in output_text
 
 
-def test_rdr_console_output():
-    test_rdr = HistoryRenderer(get_test_data(), frame_size=5, terminal_size="")
+def test_rdr_console_output(test_data):
+    test_rdr = HistoryRenderer(test_data, frame_size=5, terminal_size="")
     expected_output = """-->  sentence - 9  - index 1
 -->  sentence - 8  - index 2
 -->  sentence - 7  - index 3
