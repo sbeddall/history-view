@@ -1,7 +1,8 @@
 import argparse
 import os
+import sys
 
-right_arrow = "➡"
+from .renderer import HistoryRenderer
 
 # abstraction layer where console detection needs to kick in and return a list of the console history
 # prototype only supports powershell
@@ -31,9 +32,9 @@ def get_frame(data, offset, window_size):
 def render_frame(data, offset, window_size=5):
     frame_data = get_frame(data, offset, window_size)
 
-    suffix = "\033[F" * ((len(frameset) - 1) or 1) if not last_frame else "\n"
+    # suffix = "\033[F" * ((len(frame_data) - 1) or 1)
 
-    rendering_string = "\r" + "\n".join(frameset) + suffix
+    rendering_string = "\r" + "\n".join(frame_data)  # + suffix
 
     sys.stdout.write(rendering_string)
     sys.stdout.flush()
@@ -41,11 +42,13 @@ def render_frame(data, offset, window_size=5):
 
 def console_loop(data):
     render_frame(data, 0)
-
-    incoming = input
+    incoming = input()
+    print("input seen {}".format(incoming))
 
 
 def console_entry():
     data = get_console_history()
-    data = input()
-    print("history view!")
+
+    renderer = HistoryRenderer(data)
+
+    print(renderer.render_current_frame())

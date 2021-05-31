@@ -21,7 +21,7 @@ setup(
         "License :: OSI Approved :: MIT License",
     ],
     packages=find_packages(exclude=["tests"]),
-    install_requires=[],
+    install_requires=["jinja2"],
     project_urls={
         "Bug Reports": "https://github.com/sbeddall/history-view/issues",
         "Source": "https://github.com/sbeddall/history-view",
