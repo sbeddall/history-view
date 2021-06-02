@@ -6,6 +6,8 @@ TODO:
 - [ ] How do we display the same "screen" when rendering?
 - [ ] How do we listen to up/down arrow?
 - [ ] How do we pass the I/O around?
+- [ ] Full working console loop, even if hacky.
+- [ ] Correct console loop, no hacks.
 
 ## How can we listen to up/down arrow AND do inputy things?
 

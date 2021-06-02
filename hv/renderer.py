@@ -89,14 +89,21 @@ class HistoryRenderer:
         result = "--" + direction + ("-" * (terminal_size - 8)) + direction + "--"
         return result
 
-    def render_current_frame(self):
-        return self.render_frame(reversed(self.get_frame()))
+    def __calculate_prefix(self, input):
+        if input:
+            return "\033[F" * len(input.split("\n"))
+        else:
+            return input
 
-    def render_frame(self, frame):
+    def render_current_frame(self, enable_overwrite = True):
+        return self.render_frame(reversed(self.get_frame()), enable_overwrite)
+
+    def render_frame(self, frame, enable_overwrite = True):
         """
         Renders a frame to text. Leaves the value output set in class variable
         `previous_frame`. This will allow the next render to overwrite the previous output
         appropriately.
+
         """
         rendered_frame = self.template.render(
             data=frame,
@@ -105,9 +112,23 @@ class HistoryRenderer:
             top_line=self.__calculate_line(UP_ARROW),
             history_length=len(self.data),
         )
-        self.previous_frame = rendered_frame
+        prefix = ""
+        if enable_overwrite and self.previous_frame:
+            prefix = self.__calculate_prefix(self.previous_frame)
 
-        return rendered_frame
+        self.previous_frame = rendered_frame
+        return prefix + rendered_frame
+
+    # previously written reference for writing to the same "frame"
+    # # https://stackoverflow.com/questions/24072790/detect-key-press-in-python
+    # def render_frame(data, offset, window_size=5):
+    #     frame_data = get_frame(data, offset, window_size)
+
+    #     # suffix = "\033[F" * ((len(frame_data) - 1) or 1)
+
+    #     rendering_string = "\r" + "\n".join(frame_data)  # + suffix
+
+    #     
 
     def get_frame(self):
         """
