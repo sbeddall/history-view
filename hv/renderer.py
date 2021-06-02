@@ -91,7 +91,7 @@ class HistoryRenderer:
 
     def __calculate_prefix(self, input):
         if input:
-            return "\033[F" * len(input.split("\n"))
+            return "\033[{}F".format(len(input.split("\n")) + 1) 
         else:
             return input
 

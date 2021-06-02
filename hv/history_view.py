@@ -32,19 +32,13 @@ def console_loop(renderer):
     """
     i_handler = HistoryInteractor()
 
-    # while True:
-    # output = renderer.render_current_frame()
-    #     # result = i_handler.wait_for_input()
-    # sys.stdout.write(output)
-    # sys.stdout.flush()
-    renderer.increment_frame()
-
-    input("<- CURSOR_HERE")
-
-    output = renderer.render_current_frame()
-    sys.stdout.write(output)
-    sys.stdout.flush()
-
+    while True:
+        output = renderer.render_current_frame()
+        renderer.increment_frame()
+        sys.stdout.write(output)
+        sys.stdout.flush()
+        input()
+    
     # switch on the different cases of interaction
 
         
