@@ -1,6 +1,7 @@
 import argparse
 import os
 import sys
+import atexit
 
 from .renderer import HistoryRenderer
 
@@ -21,13 +22,6 @@ def get_console_history():
 
         return data
 
-
-def get_frame(data, offset, window_size):
-    end = len(data) if offset + window_size > len(data) else offset + window_size
-
-    return data[offset:end]
-
-
 # https://stackoverflow.com/questions/24072790/detect-key-press-in-python
 def render_frame(data, offset, window_size=5):
     frame_data = get_frame(data, offset, window_size)
@@ -40,15 +34,15 @@ def render_frame(data, offset, window_size=5):
     sys.stdout.flush()
 
 
-def console_loop(data):
-    render_frame(data, 0)
-    incoming = input()
-    print("input seen {}".format(incoming))
+def console_loop(renderer):
+    """
+    This loop is the primary driver of the UI experience. Its primary purpose is to 
+    provide the input <-> renderer interaction loop.
+    """
+    renderer.render_current_frame()
 
 
 def console_entry():
     data = get_console_history()
-
     renderer = HistoryRenderer(data)
-
-    print(renderer.render_current_frame())
+    console_loop(renderer)
