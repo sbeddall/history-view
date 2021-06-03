@@ -89,11 +89,11 @@ class HistoryRenderer:
         result = "--" + direction + ("-" * (terminal_size - 8)) + direction + "--"
         return result
 
-    def __calculate_prefix(self, input):
-        if input:
-            return "\033[{}F".format(len(input.split("\n")) + 1) 
+    def __calculate_prefix(self, r_string):
+        if r_string:
+            return "\033[{}F".format(len(r_string.split("\n")) + 1)
         else:
-            return input
+            return r_string
 
     def render_current_frame(self, enable_overwrite = True):
         return self.render_frame(reversed(self.get_frame()), enable_overwrite)

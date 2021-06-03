@@ -1,13 +1,16 @@
 # history-view
-A little tool to visually browse your console history
+A little tool to visually browse your console history.
+
+What it looks like to scan through your history now:
+    
 
 
 TODO:
 - [ ] How do we display the same "screen" when rendering?
 - [ ] How do we listen to up/down arrow?
 - [ ] How do we pass the I/O around?
-- [ ] Full working console loop, even if hacky.
 - [ ] Correct console loop, no hacks.
+    - Gonna need to buffer each line with whitespace so that it overwrites properly :/ 
 
 ## How can we listen to up/down arrow AND do inputy things?
 
