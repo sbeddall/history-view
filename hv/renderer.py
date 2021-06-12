@@ -1,6 +1,8 @@
 from jinja2 import Template
 import shutil
 import pdb
+import random
+import textwrap
 
 from .globals import *
 
@@ -46,6 +48,7 @@ class HistoryRenderer:
 
         self.frame_size = kwargs.get("frame_size", DEFAULT_FRAME_SIZE)
         self.template = kwargs.get("template", DISPLAY_TEMPLATE)
+        self.party_parrot = kwargs.get("parrot_mode", False)
         self.current_frame = kwargs.get("start_frame", 0)
         self.previous_frame = None
 
@@ -91,26 +94,60 @@ class HistoryRenderer:
 
     def __calculate_prefix(self, r_string):
         if r_string:
-            return "\033[{}F".format(len(r_string.split("\n")) + 1)
+            return "\033[{}F".format(len(r_string.split("\n")) - 1)
         else:
             return r_string
 
-    def render_current_frame(self, enable_overwrite = True):
+    def render_current_frame(self, enable_overwrite=True):
         return self.render_frame(reversed(self.get_frame()), enable_overwrite)
 
-    def render_frame(self, frame, enable_overwrite = True):
+    def __minimize_pad_frame(self, frame):
+        minimized_frame = [
+            textwrap.shorten(
+                history_item, width=self.t_size().columns - 8, placeholder="..."
+            )
+            for history_item in frame
+        ]
+        padded_frame = [
+            "{line:{fill}{align}{width}}".format(
+                line=shorted_frame, fill=" ", align="<", width=self.t_size().columns - 6
+            )
+            for shorted_frame in minimized_frame
+        ]
+
+        pdb.set_trace
+        return padded_frame
+
+    def parrotfy(self, rendered_str):
+        result = ""
+        code = random.randrange(3, 16) * 16
+
+        if self.party_parrot:
+            result += u"\u001b[38;5;{0}m".format(code)
+
+        result += rendered_str
+
+        if self.party_parrot:
+            result += u"\u001b[38;5;"
+
+        return result
+
+    def render_frame(self, frame, enable_overwrite=True):
         """
         Renders a frame to text. Leaves the value output set in class variable
         `previous_frame`. This will allow the next render to overwrite the previous output
         appropriately.
 
         """
-        rendered_frame = self.template.render(
-            data=frame,
-            terminal_size=self.t_size().columns,
-            bottom_line=self.__calculate_line(DOWN_ARROW),
-            top_line=self.__calculate_line(UP_ARROW),
-            history_length=len(self.data),
+
+        rendered_frame = self.parrotfy(
+            self.template.render(
+                data=self.__minimize_pad_frame(frame),
+                terminal_size=self.t_size().columns,
+                bottom_line=self.__calculate_line(DOWN_ARROW),
+                top_line=self.__calculate_line(UP_ARROW),
+                history_length=len(self.data),
+            )
         )
         prefix = ""
         if enable_overwrite and self.previous_frame:
@@ -128,7 +165,7 @@ class HistoryRenderer:
 
     #     rendering_string = "\r" + "\n".join(frame_data)  # + suffix
 
-    #     
+    #
 
     def get_frame(self):
         """

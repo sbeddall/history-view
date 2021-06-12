@@ -4,8 +4,9 @@ import re
 import pdb
 
 # TODO: Add additional tests for interaction. split into different test file. The bulk of this file
-# actually tests rendering, so probably should be moved into a test_renderer file instead of leaving it 
+# actually tests rendering, so probably should be moved into a test_renderer file instead of leaving it
 # here.
+
 
 def test_hv_basic_import():
     from hv import console_entry
@@ -101,7 +102,7 @@ def test_rdr_output_short_frame(test_data):
     test_rdr = HistoryRenderer(test_data, frame_size=5)
 
     input_frame = test_rdr.get_frame()
-    output_text = test_rdr.render_frame(input_frame, enable_suffix = False)
+    output_text = test_rdr.render_frame(input_frame, enable_suffix=False)
     lines_in_data = output_text.splitlines()
 
     assert len(lines_in_data) == 12

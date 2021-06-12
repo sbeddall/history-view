@@ -1,4 +1,7 @@
 from enum import Enum
+import os
+import sys
+import pdb
 
 
 class INTERACTION(Enum):
@@ -41,9 +44,42 @@ class HistoryInteractor:
     def __init__(self):
         pass
 
+    def __parse(self, char):
+        if char == b"H":
+            return InteractionResult(interaction=INTERACTION.FRAME_BACK, data=None)
+
+        if char == b"P":
+            return InteractionResult(interaction=INTERACTION.FRAME_FORWARD, data=None)
+
+    # a very smart person came up with this methodology https://stackoverflow.com/a/34956791
     def wait_for_input(self):
-        result = input()
-        return InteractionResult(InteractionResult.ITEM_SELECTED, 0)
+        result = None
+        if os.name == "nt":
+            import msvcrt
+
+            if ord(msvcrt.getch()) == 224:
+                result = msvcrt.getch()
+
+        else:
+            import termios
+
+            fd = sys.stdin.fileno()
+
+            oldterm = termios.tcgetattr(fd)
+            newattr = termios.tcgetattr(fd)
+            newattr[3] = newattr[3] & ~termios.ICANON & ~termios.ECHO
+            termios.tcsetattr(fd, termios.TCSANOW, newattr)
+
+            try:
+                result = sys.stdin.read(1)
+            except IOError:
+                pass
+            finally:
+                termios.tcsetattr(fd, termios.TCSAFLUSH, oldterm)
+
+            raise Exception("This is completely untested code")
+
+        return self.__parse(result)
 
         # return InteractionResult(InteractionResult.ITEM_SELECTED, selectedIdx)
         # return InteractionResult(InteractionResult.FRAME_BACK)

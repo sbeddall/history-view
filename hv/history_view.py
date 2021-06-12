@@ -4,7 +4,7 @@ import sys
 import atexit
 
 from .renderer import HistoryRenderer
-from .interactions import HistoryInteractor, InteractionResult
+from .interactions import HistoryInteractor, InteractionResult, INTERACTION
 
 # abstraction layer where console detection needs to kick in and return a list of the console history
 # prototype only supports powershell
@@ -23,6 +23,7 @@ def get_console_history():
 
         return data
 
+
 def console_loop(renderer):
     """
     This loop is the primary driver of the UI experience. Its primary purpose is to
@@ -34,14 +35,15 @@ def console_loop(renderer):
 
     while True:
         output = renderer.render_current_frame()
-        renderer.increment_frame()
         sys.stdout.write(output)
         sys.stdout.flush()
-        input()
-    
-    # switch on the different cases of interaction
 
-        
+        input_result = i_handler.wait_for_input()
+
+        if input_result.result is INTERACTION.FRAME_BACK:
+            renderer.increment_frame()
+        if input_result.result is INTERACTION.FRAME_FORWARD:
+            renderer.decrement_frame()
 
 
 def console_entry():
