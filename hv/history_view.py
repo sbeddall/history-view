@@ -1,8 +1,10 @@
 import argparse
 import os
 import sys
+import atexit
 
 from .renderer import HistoryRenderer
+from .interactions import HistoryInteractor, InteractionResult, INTERACTION
 
 # abstraction layer where console detection needs to kick in and return a list of the console history
 # prototype only supports powershell
@@ -22,33 +24,29 @@ def get_console_history():
         return data
 
 
-def get_frame(data, offset, window_size):
-    end = len(data) if offset + window_size > len(data) else offset + window_size
+def console_loop(renderer):
+    """
+    This loop is the primary driver of the UI experience. Its primary purpose is to
+    provide the input <-> renderer interaction loop.
 
-    return data[offset:end]
+    Currently hacked for initial ease of testing.
+    """
+    i_handler = HistoryInteractor()
 
+    while True:
+        output = renderer.render_current_frame()
+        sys.stdout.write(output)
+        sys.stdout.flush()
 
-# https://stackoverflow.com/questions/24072790/detect-key-press-in-python
-def render_frame(data, offset, window_size=5):
-    frame_data = get_frame(data, offset, window_size)
+        input_result = i_handler.wait_for_input()
 
-    # suffix = "\033[F" * ((len(frame_data) - 1) or 1)
-
-    rendering_string = "\r" + "\n".join(frame_data)  # + suffix
-
-    sys.stdout.write(rendering_string)
-    sys.stdout.flush()
-
-
-def console_loop(data):
-    render_frame(data, 0)
-    incoming = input()
-    print("input seen {}".format(incoming))
+        if input_result.result is INTERACTION.FRAME_BACK:
+            renderer.increment_frame()
+        if input_result.result is INTERACTION.FRAME_FORWARD:
+            renderer.decrement_frame()
 
 
 def console_entry():
     data = get_console_history()
-
     renderer = HistoryRenderer(data)
-
-    print(renderer.render_current_frame())
+    console_loop(renderer)
