@@ -15,9 +15,12 @@ DISPLAY_TEMPLATE = Template(
 """🐐🐐 Command History:
 There are {{ history_length }} items(s) to observe. Rendering tWidth at {{ terminal_size }}. 
 
-{{ top_line }}
+Select an option either by the selector (space|enter) or by typing an index digit.
 
-{% for cmd in data -%}   -->  {{ cmd }}
+{{ top_line }}
+     idx    cmd   
+
+{% for cmd in data -%}   {{ cmd }}
 {% endfor %}
 {{ bottom_line }}
 """)
@@ -45,12 +48,15 @@ class InvalidConfigurationException(BaseException):
 class HistoryRenderer:
     def __init__(self, data, **kwargs):
         self.data = [cmd.strip() for cmd in data]
-
         self.frame_size = kwargs.get("frame_size", DEFAULT_FRAME_SIZE)
         self.template = kwargs.get("template", DISPLAY_TEMPLATE)
         self.party_parrot = kwargs.get("parrot_mode", False)
         self.current_frame = kwargs.get("start_frame", 0)
         self.previous_frame = None
+
+        # we start at max because the the render happens top down
+        # that means selected starts at
+        self.selected_index = self.frame_size - 1
 
         if not data:
             raise InvalidConfigurationException(
@@ -68,6 +74,28 @@ class HistoryRenderer:
 
     def t_size(self):
         return shutil.get_terminal_size()
+
+    def __process_selected_change(self, positive):
+        if positive:
+            if self.selected_index < (self.frame_size - 1):
+                self.selected_index = self.selected_index + 1
+        else:
+            if self.selected_index > (self.frame_size - 4):
+                self.selected_index = self.selected_index - 1
+
+    def __is_selected_frame(self, frame_index):
+        """
+        Takes an index from a frame and returns a boolean to indicate whether or not to show the "selector" on that line.
+        """
+        return frame_index == self.selected_index
+
+    def __get_frame_index_prefix(self, frame_index):
+        return "---> " if self.__is_selected_frame(frame_index) else "     "
+
+    def __render_idx_prefix(self, frame_idx):
+        return "{line:{fill}{align}{width}}".format(
+            line=" " + str(frame_idx), fill=" ", align="<", width=7
+        )
 
     def __rows_preceeding(self, index=None):
         return (index or self.current_frame) > 0
@@ -89,7 +117,7 @@ class HistoryRenderer:
             if not self.__rows_preceeding():
                 direction = "=="
 
-        result = "--" + direction + ("-" * (terminal_size - 8)) + direction + "--"
+        result = "--" + direction + ("-" * (terminal_size - 13)) + direction + "--"
         return result
 
     def __calculate_prefix(self, r_string):
@@ -103,14 +131,16 @@ class HistoryRenderer:
 
     def __minimize_pad_frame(self, frame):
         minimized_frame = [
-            textwrap.shorten(
+            self.__get_frame_index_prefix(index)
+            + self.__render_idx_prefix(index)
+            + textwrap.shorten(
                 history_item, width=self.t_size().columns - 8, placeholder="..."
             )
-            for history_item in frame
+            for index, history_item in enumerate(frame)
         ]
         padded_frame = [
             "{line:{fill}{align}{width}}".format(
-                line=shorted_frame, fill=" ", align="<", width=self.t_size().columns - 6
+                line=shorted_frame, fill=" ", align="<", width=self.t_size().columns - 5
             )
             for shorted_frame in minimized_frame
         ]
@@ -156,17 +186,6 @@ class HistoryRenderer:
         self.previous_frame = rendered_frame
         return prefix + rendered_frame
 
-    # previously written reference for writing to the same "frame"
-    # # https://stackoverflow.com/questions/24072790/detect-key-press-in-python
-    # def render_frame(data, offset, window_size=5):
-    #     frame_data = get_frame(data, offset, window_size)
-
-    #     # suffix = "\033[F" * ((len(frame_data) - 1) or 1)
-
-    #     rendering_string = "\r" + "\n".join(frame_data)  # + suffix
-
-    #
-
     def get_frame(self):
         """
         Gets a frame at current index.
@@ -206,6 +225,7 @@ class HistoryRenderer:
         """
         if not self.current_frame >= (len(self.data) - self.frame_size):
             self.current_frame += 1
+            self.__process_selected_change(False)
 
     def decrement_frame(self):
         """
@@ -220,3 +240,4 @@ class HistoryRenderer:
         """
         if self.current_frame > 0:
             self.current_frame -= 1
+            self.__process_selected_change(True)
