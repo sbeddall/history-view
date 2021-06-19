@@ -2,6 +2,7 @@ import argparse
 import os
 import sys
 import atexit
+import pdb
 
 from .renderer import HistoryRenderer
 from .interactions import HistoryInteractor, InteractionResult, INTERACTION
@@ -42,6 +43,7 @@ def console_loop(renderer):
 
         if input_result.result is INTERACTION.FRAME_BACK:
             renderer.increment_frame()
+            
         if input_result.result is INTERACTION.FRAME_FORWARD:
             renderer.decrement_frame()
 
