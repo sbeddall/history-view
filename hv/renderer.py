@@ -156,17 +156,6 @@ class HistoryRenderer:
         self.previous_frame = rendered_frame
         return prefix + rendered_frame
 
-    # previously written reference for writing to the same "frame"
-    # # https://stackoverflow.com/questions/24072790/detect-key-press-in-python
-    # def render_frame(data, offset, window_size=5):
-    #     frame_data = get_frame(data, offset, window_size)
-
-    #     # suffix = "\033[F" * ((len(frame_data) - 1) or 1)
-
-    #     rendering_string = "\r" + "\n".join(frame_data)  # + suffix
-
-    #
-
     def get_frame(self):
         """
         Gets a frame at current index.
