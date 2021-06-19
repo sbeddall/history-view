@@ -3,7 +3,7 @@ A little tool to visually browse your console history.
 
 What it looks like to scan through your history now:
     
-![scrolling_experience](https://user-images.githubusercontent.com/479566/121769985-7c021980-cb1b-11eb-9b3e-e81e7022eca5.gif)
+![more_scrolling](https://user-images.githubusercontent.com/479566/122635631-f2fa5d80-d099-11eb-9e72-cb83441c1c54.gif)
 
 TODO:
 - [ ] How do we display the same "screen" when rendering?
