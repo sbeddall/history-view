@@ -53,9 +53,9 @@ class HistoryRenderer:
         self.party_parrot = kwargs.get("parrot_mode", False)
         self.current_frame = kwargs.get("start_frame", 0)
         self.previous_frame = None
-       
+
         # we start at max because the the render happens top down
-        # that means selected starts at 
+        # that means selected starts at
         self.selected_index = self.frame_size - 1
 
         if not data:
@@ -87,16 +87,15 @@ class HistoryRenderer:
         """
         Takes an index from a frame and returns a boolean to indicate whether or not to show the "selector" on that line.
         """
-        return (frame_index == self.selected_index)
+        return frame_index == self.selected_index
 
     def __get_frame_index_prefix(self, frame_index):
-        return ("---> " if self.__is_selected_frame(frame_index) else "     ")
+        return "---> " if self.__is_selected_frame(frame_index) else "     "
 
     def __render_idx_prefix(self, frame_idx):
         return "{line:{fill}{align}{width}}".format(
-                line = " " +str(frame_idx), fill=" ", align="<", width=7
-            )
-
+            line=" " + str(frame_idx), fill=" ", align="<", width=7
+        )
 
     def __rows_preceeding(self, index=None):
         return (index or self.current_frame) > 0
@@ -132,9 +131,9 @@ class HistoryRenderer:
 
     def __minimize_pad_frame(self, frame):
         minimized_frame = [
-            self.__get_frame_index_prefix(index) +
-            self.__render_idx_prefix(index) +
-            textwrap.shorten(
+            self.__get_frame_index_prefix(index)
+            + self.__render_idx_prefix(index)
+            + textwrap.shorten(
                 history_item, width=self.t_size().columns - 8, placeholder="..."
             )
             for index, history_item in enumerate(frame)
@@ -242,4 +241,3 @@ class HistoryRenderer:
         if self.current_frame > 0:
             self.current_frame -= 1
             self.__process_selected_change(True)
-            

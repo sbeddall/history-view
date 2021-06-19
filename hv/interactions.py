@@ -51,8 +51,6 @@ class HistoryInteractor:
         if char == b"P":
             return InteractionResult(interaction=INTERACTION.FRAME_FORWARD, data=None)
 
-
-
     # a very smart person came up with this methodology https://stackoverflow.com/a/34956791
     def wait_for_input(self):
         result = None
