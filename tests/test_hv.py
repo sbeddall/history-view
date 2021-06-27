@@ -15,11 +15,11 @@ def test_hv_basic_import():
 def test_rdr_good_increment_cases(test_data):
     very_edge = HistoryRenderer(test_data, frame_size=5, start_frame=4)
     very_edge.increment_frame()
-    assert very_edge.current_frame == 5
+    assert very_edge.current_frame == 4
 
     standard = HistoryRenderer(test_data, frame_size=5, start_frame=0)
     standard.increment_frame()
-    assert standard.current_frame == 1
+    assert standard.current_frame == 0
 
 
 def test_rdr_bad_increment_cases(test_data):
