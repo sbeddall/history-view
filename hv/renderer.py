@@ -134,7 +134,7 @@ class HistoryRenderer:
         ]
         padded_frame = [
             "{line:{fill}{align}{width}}".format(
-                line=shorted_frame, fill=" ", align="<", width=self.t_size().columns - 5
+                line=shorted_frame, fill=" ", align="<", width=self.t_size().columns
             )
             for shorted_frame in minimized_frame
         ]

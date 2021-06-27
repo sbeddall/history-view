@@ -11,7 +11,7 @@ What it looks like to scan through your history now:
 
 Supports filtered browsing by passing -s parameter. 
 
-## Known Issues Because 
+## Known Issues
 
 - Still uses `subprocess` to invoke. It should be _mostly_ the same given that environment variables are passed in, but a straightforward return of the command is something that would be better.
 - Only supports Windows and Powershell.
