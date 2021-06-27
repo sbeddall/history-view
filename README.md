@@ -9,6 +9,8 @@ What it looks like to scan through your history now:
 
 `-s, --search`: Search by regex
 
+'--c`: Copy command to clipboard. Don't Invoke
+
 ## Known Issues
 
 - Still uses `subprocess` to invoke. It should be _mostly_ the same given that environment variables are passed in, but a straightforward return of the command is something that would be better.
