@@ -7,9 +7,10 @@ What it looks like to scan through your history now:
 
 ### Arguments
 
-`-s, --search`: Search by regex
-
-'--c`: Copy command to clipboard. Don't Invoke
+| Argument       | Description                                               |
+|----------------|-----------------------------------------------------------|
+| `-s, --search` | Filter history by regex.                                  |
+| `--c`          | Don't invoke selected command, instead copy to clipboard. |
 
 ## Known Issues
 
