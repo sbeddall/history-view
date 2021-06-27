@@ -7,12 +7,12 @@ with open("README.md", encoding="utf-8") as f:
 
 setup(
     name="history-view",
-    version="1.0.0a1",
+    version="1.0.0",
     description="A tiny python application that abstracts viewing/interacting with your console history.",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/sbeddall/history-view",
-    author="sbeddall",
+    url="https://github.com/semick-dev/history-view",
+    author="semick-dev",
     author_email="sbeddall@gmail.com",
     license="MIT License",
     classifiers=[
@@ -21,10 +21,10 @@ setup(
         "License :: OSI Approved :: MIT License",
     ],
     packages=find_packages(exclude=["tests"]),
-    install_requires=["jinja2", "pynput"],
+    install_requires=["jinja2", "pyperclip"],
     project_urls={
-        "Bug Reports": "https://github.com/sbeddall/history-view/issues",
-        "Source": "https://github.com/sbeddall/history-view",
+        "Bug Reports": "https://github.com/semick-dev/history-view/issues",
+        "Source": "https://github.com/senucj0dev/history-view",
     },
     entry_points={"console_scripts": ["hv=hv:console_entry"]},
 )

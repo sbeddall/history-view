@@ -4,6 +4,7 @@ import sys
 import pdb
 import subprocess
 import re
+import pyperclip
 
 from .renderer import HistoryRenderer
 from .interactions import HistoryInteractor, InteractionResult, INTERACTION
@@ -32,6 +33,10 @@ def get_console_history(search):
         return data
 
 
+def set_clipboard(command):
+    pyperclip.copy(command)
+
+
 def add_console_history(command):
     if os.name == "nt":
         with open(
@@ -46,14 +51,19 @@ def add_console_history(command):
         raise NotImplementedError("Unsupported combination of shell and OS.")
 
 
-def return_or_exit(command, renderer):
-    add_console_history(command)
+def return_or_exit(command, renderer, copy_to_clip):
     print(os.linesep)
-    result = subprocess.run(command, shell=True, cwd=os.getcwd())
-    sys.exit(result.returncode)
+
+    if copy_to_clip:
+        set_clipboard(command)
+        sys.exit(0)
+    else:
+        add_console_history(command)
+        result = subprocess.run(command, shell=True, cwd=os.getcwd())
+        sys.exit(result.returncode)
 
 
-def console_loop(renderer):
+def console_loop(renderer, copy_to_clip):
     """
     This loop is the primary driver of the UI experience. Its primary purpose is to
     provide the input <-> renderer interaction loop.
@@ -80,7 +90,7 @@ def console_loop(renderer):
                 else input_result.result
             )
             command = renderer.get_command(idx)
-            return_or_exit(command, renderer)
+            return_or_exit(command, renderer, copy_to_clip)
 
         if input_result.result is INTERACTION.EXIT:
             sys.exit(0)
@@ -94,10 +104,11 @@ def console_entry():
     parser = argparse.ArgumentParser(description="Traverse your console history.")
 
     parser.add_argument("-s", "--search", dest="search", default=None)
-
     parser.add_argument("--parrot", dest="parrotfy", action="store_true", default=False)
+    parser.add_argument("--c", dest="copy_to_clip", action="store_true", default=False)
+
     args = parser.parse_args()
 
     data = get_console_history(args.search)
     renderer = HistoryRenderer(data, parrot_mode=args.parrotfy)
-    console_loop(renderer)
+    console_loop(renderer, args.copy_to_clip)

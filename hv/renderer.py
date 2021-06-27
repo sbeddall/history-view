@@ -242,10 +242,9 @@ class HistoryRenderer:
         """
         if not self.current_frame >= (len(self.data) - self.frame_size):
             self.current_frame += 1
-            
+
             # we only need to move our frame if the selected index updates (otherwise we'll get a double move)
             self.current_frame -= self.__process_selected_change(False)
-                
 
     def decrement_frame(self):
         """
@@ -262,4 +261,3 @@ class HistoryRenderer:
             self.current_frame -= 1
 
             self.current_frame += self.__process_selected_change(True)
-   
