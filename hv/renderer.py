@@ -241,10 +241,11 @@ class HistoryRenderer:
          0                    01
         """
         if not self.current_frame >= (len(self.data) - self.frame_size):
-            self.__process_selected_change(False)
-
-            # we only need to move our frame if the selected index updates (otherwise we'll get a double move)
             self.current_frame += 1
+            
+            # we only need to move our frame if the selected index updates (otherwise we'll get a double move)
+            self.current_frame -= self.__process_selected_change(False)
+                
 
     def decrement_frame(self):
         """
@@ -258,10 +259,7 @@ class HistoryRenderer:
          01                   0
         """
         if self.current_frame > 0 or self.selected_index < self.frame_size - 1:
-            self.__process_selected_change(True)
+            self.current_frame -= 1
 
-            # we only need to move our frame if the selected index updates (otherwise we'll get a double move).
-            # however because  we need to shift our cursor down even when the selected frame hasn't moved
-            # we need to account for that in a check here
-            if self.current_frame > 0:
-                self.current_frame -= 1
+            self.current_frame += self.__process_selected_change(True)
+   

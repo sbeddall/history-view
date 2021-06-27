@@ -49,10 +49,8 @@ def add_console_history(command):
 def return_or_exit(command, renderer):
     add_console_history(command)
     print(os.linesep)
-    result = subprocess.run(command, shell=True)
-
-    pdb.set_trace()
-    sys.exit(0)
+    result = subprocess.run(command, shell=True, cwd=os.getcwd())
+    sys.exit(result.returncode)
 
 
 def console_loop(renderer):

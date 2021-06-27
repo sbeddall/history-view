@@ -3,7 +3,7 @@ A little tool to visually browse your console history.
 
 What it looks like to scan through your history now:
     
-![more_scrolling](https://user-images.githubusercontent.com/479566/122635631-f2fa5d80-d099-11eb-9e72-cb83441c1c54.gif)
+![calling_it_workin](https://user-images.githubusercontent.com/479566/123533473-de861880-d6ca-11eb-8da0-d7b0d7734814.gif)
 
 ### Arguments
 
