@@ -3,7 +3,7 @@ A little tool to visually browse your console history.
 
 What it looks like to scan through your history now:
     
-![calling_it_workin](https://user-images.githubusercontent.com/479566/123533473-de861880-d6ca-11eb-8da0-d7b0d7734814.gif)
+![bug_fixed_working](https://user-images.githubusercontent.com/479566/123533695-5b65c200-d6cc-11eb-90e4-94c588de4d92.gif)
 
 ### Arguments
 
@@ -11,7 +11,7 @@ What it looks like to scan through your history now:
 
 Supports filtered browsing by passing -s parameter. 
 
-## Known Issues Because 
+## Known Issues
 
 - Still uses `subprocess` to invoke. It should be _mostly_ the same given that environment variables are passed in, but a straightforward return of the command is something that would be better.
 - Only supports Windows and Powershell.
