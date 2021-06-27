@@ -9,11 +9,7 @@ What it looks like to scan through your history now:
 
 `-s, --search`: Search by regex
 
-Supports filtered browsing by passing -s parameter. 
-
 '--c`: Copy command to clipboard. Don't Invoke
-
-
 
 ## Known Issues
 
