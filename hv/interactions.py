@@ -19,6 +19,7 @@ class INTERACTION(Enum):
     FRAME_BACK = 2
     FRAME_FORWARD = 3
     UNKNOWN = 4
+    EXIT = 5
 
 
 class InteractionResult:
@@ -51,37 +52,42 @@ class HistoryInteractor:
         if char == b"P":
             return InteractionResult(interaction=INTERACTION.FRAME_FORWARD, data=None)
 
+        ## not having data on an ITEM_SELECTED means that we're selecting the current index
+        if char == " ":
+            return InteractionResult(interaction=INTERACTION.ITEM_SELECTED, data=None)
+
+        if char == b"\r":
+            return InteractionResult(interaction=INTERACTION.ITEM_SELECTED, data=None)
+
+        if char == b"\x1b":
+            return InteractionResult(interaction=INTERACTION.EXIT, data=None)
+
+        if char == b"q":
+            return InteractionResult(interaction=INTERACTION.EXIT, data=None)
+
+        # see if they selected an index
+        try:
+            if int(char) in range(0, 10):
+                return InteractionResult(
+                    interaction=INTERACTION.ITEM_SELECTED, data=int(char)
+                )
+        except:
+            pass
+
+        # everything else we don't understand, just return unknown
+        return InteractionResult(interaction=INTERACTION.UKNOWN)
+
     # a very smart person came up with this methodology https://stackoverflow.com/a/34956791
     def wait_for_input(self):
         result = None
         if os.name == "nt":
             import msvcrt
 
-            if ord(msvcrt.getch()) == 224:
+            result = msvcrt.getch()
+            if ord(result) == 224:
                 result = msvcrt.getch()
-
         else:
-            import termios
-
-            fd = sys.stdin.fileno()
-
-            oldterm = termios.tcgetattr(fd)
-            newattr = termios.tcgetattr(fd)
-            newattr[3] = newattr[3] & ~termios.ICANON & ~termios.ECHO
-            termios.tcsetattr(fd, termios.TCSANOW, newattr)
-
-            try:
-                result = sys.stdin.read(1)
-            except IOError:
-                pass
-            finally:
-                termios.tcsetattr(fd, termios.TCSAFLUSH, oldterm)
-
-            raise Exception("This is completely untested code")
+            # TODO: https://github.com/semick-dev/history-view/issues/8
+            raise NotImplementedError("This is completely untested code")
 
         return self.__parse(result)
-
-        # return InteractionResult(InteractionResult.ITEM_SELECTED, selectedIdx)
-        # return InteractionResult(InteractionResult.FRAME_BACK)
-        # return InteractionResult(InteractionResult.FRAME_FORWARD)
-        # return InteractionResult(InteractionResult.UNKNOWN, exception?)

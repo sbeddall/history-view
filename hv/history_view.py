@@ -1,8 +1,9 @@
 import argparse
 import os
 import sys
-import atexit
 import pdb
+import subprocess
+import re
 
 from .renderer import HistoryRenderer
 from .interactions import HistoryInteractor, InteractionResult, INTERACTION
@@ -11,26 +12,53 @@ from .interactions import HistoryInteractor, InteractionResult, INTERACTION
 # prototype only supports powershell
 #  - most recent first
 #  - all of it
-def get_console_history():
-    with open(
-        "{userhome}/AppData/Roaming/Microsoft/Windows/PowerShell/PSReadline/ConsoleHost_history.txt".format(
-            userhome=os.environ["USERPROFILE"]
-        ),
-        "r",
-        encoding="utf-8",
-    ) as history:
-        data = history.readlines()
-        data.reverse()
+def get_console_history(search):
+    if os.name == "nt":
+        with open(
+            "{userhome}/AppData/Roaming/Microsoft/Windows/PowerShell/PSReadline/ConsoleHost_history.txt".format(
+                userhome=os.environ["USERPROFILE"]
+            ),
+            "r",
+            encoding="utf-8",
+        ) as history:
+            data = history.readlines()
+            data.reverse()
+    else:
+        raise NotImplementedError("Unsupported combination of shell and OS.")
 
+    if search:
+        return [command for command in data if re.search(search, command)]
+    else:
         return data
+
+
+def add_console_history(command):
+    if os.name == "nt":
+        with open(
+            "{userhome}/AppData/Roaming/Microsoft/Windows/PowerShell/PSReadline/ConsoleHost_history.txt".format(
+                userhome=os.environ["USERPROFILE"]
+            ),
+            "a",
+            encoding="utf-8",
+        ) as history:
+            history.write(command + "\r")
+    else:
+        raise NotImplementedError("Unsupported combination of shell and OS.")
+
+
+def return_or_exit(command, renderer):
+    add_console_history(command)
+    print(os.linesep)
+    result = subprocess.run(command, shell=True)
+
+    pdb.set_trace()
+    sys.exit(0)
 
 
 def console_loop(renderer):
     """
     This loop is the primary driver of the UI experience. Its primary purpose is to
     provide the input <-> renderer interaction loop.
-
-    Currently hacked for initial ease of testing.
     """
     i_handler = HistoryInteractor()
 
@@ -47,8 +75,31 @@ def console_loop(renderer):
         if input_result.result is INTERACTION.FRAME_FORWARD:
             renderer.decrement_frame()
 
+        if input_result.result is INTERACTION.ITEM_SELECTED:
+            idx = (
+                renderer.selected_index
+                if input_result.value == None
+                else input_result.result
+            )
+            command = renderer.get_command(idx)
+            return_or_exit(command, renderer)
+
+        if input_result.result is INTERACTION.EXIT:
+            sys.exit(0)
+
+        if input_result.result is INTERACTION.UNKNOWN:
+            print("Unrecognized interaction. Exiting.")
+            sys.exit(1)
+
 
 def console_entry():
-    data = get_console_history()
-    renderer = HistoryRenderer(data)
+    parser = argparse.ArgumentParser(description="Traverse your console history.")
+
+    parser.add_argument("-s", "--search", dest="search", default=None)
+
+    parser.add_argument("--parrot", dest="parrotfy", action="store_true", default=False)
+    args = parser.parse_args()
+
+    data = get_console_history(args.search)
+    renderer = HistoryRenderer(data, parrot_mode=args.parrotfy)
     console_loop(renderer)

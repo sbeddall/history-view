@@ -3,6 +3,7 @@ import shutil
 import pdb
 import random
 import textwrap
+import re
 
 from .globals import *
 
@@ -16,6 +17,7 @@ DISPLAY_TEMPLATE = Template(
 There are {{ history_length }} items(s) to observe. Rendering tWidth at {{ terminal_size }}. 
 
 Select an option either by the selector (space|enter) or by typing an index digit.
+Enter "q" or "ctrl-c" to exit without selecting a command.
 
 {{ top_line }}
      idx    cmd   
@@ -74,14 +76,6 @@ class HistoryRenderer:
 
     def t_size(self):
         return shutil.get_terminal_size()
-
-    def __process_selected_change(self, positive):
-        if positive:
-            if self.selected_index < (self.frame_size - 1):
-                self.selected_index = self.selected_index + 1
-        else:
-            if self.selected_index > (self.frame_size - 4):
-                self.selected_index = self.selected_index - 1
 
     def __is_selected_frame(self, frame_index):
         """
@@ -144,8 +138,6 @@ class HistoryRenderer:
             )
             for shorted_frame in minimized_frame
         ]
-
-        pdb.set_trace
         return padded_frame
 
     def parrotfy(self, rendered_str):
@@ -161,6 +153,15 @@ class HistoryRenderer:
             result += u"\u001b[38;5;"
 
         return result
+
+    def get_command(self, idx):
+        frame = self.get_frame()
+        return frame[self.frame_size - 1 - idx]
+
+    def render_blank_frame(self):
+        replace_regex = r"[^\s]"
+
+        return re.sub(replace_regex, " ", self.previous_frame)
 
     def render_frame(self, frame, enable_overwrite=True):
         """
@@ -212,6 +213,22 @@ class HistoryRenderer:
 
         return self.data[begin:end]
 
+    def __process_selected_change(self, positive):
+        """
+        Processes the selected index change of a "go up" or "go down" command.
+
+        Returns whether or not the selected index actually changes
+        """
+        if positive:
+            if self.selected_index < (self.frame_size - 1):
+                self.selected_index = self.selected_index + 1
+                return True
+        else:
+            if self.selected_index > (self.frame_size - 4):
+                self.selected_index = self.selected_index - 1
+                return True
+        return False
+
     def increment_frame(self):
         """
         Advances the frame in the positive direction. Moving first element of viewable frame towards the end.
@@ -224,12 +241,14 @@ class HistoryRenderer:
          0                    01
         """
         if not self.current_frame >= (len(self.data) - self.frame_size):
-            self.current_frame += 1
             self.__process_selected_change(False)
+
+            # we only need to move our frame if the selected index updates (otherwise we'll get a double move)
+            self.current_frame += 1
 
     def decrement_frame(self):
         """
-        Retreats the frame in the negaive direction, bringing the first element in frame closer to 0.
+        Retreats the frame in the negative direction, bringing the first element in frame closer to 0.
         Never moves beyond safe bound.
 
         Given a basic array of data, it would looks like...
@@ -238,6 +257,11 @@ class HistoryRenderer:
         [-<--->--------] --> [<--->---------]
          01                   0
         """
-        if self.current_frame > 0:
-            self.current_frame -= 1
+        if self.current_frame > 0 or self.selected_index < self.frame_size - 1:
             self.__process_selected_change(True)
+
+            # we only need to move our frame if the selected index updates (otherwise we'll get a double move).
+            # however because  we need to shift our cursor down even when the selected frame hasn't moved
+            # we need to account for that in a check here
+            if self.current_frame > 0:
+                self.current_frame -= 1

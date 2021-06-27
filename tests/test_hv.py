@@ -105,7 +105,7 @@ def test_rdr_output_short_frame(test_data):
     output_text = test_rdr.render_frame(input_frame, enable_overwrite=False)
     lines_in_data = output_text.splitlines()
 
-    assert len(lines_in_data) == 15
+    assert len(lines_in_data) == 16
 
     for line in input_frame:
         assert line[0:10] in output_text
