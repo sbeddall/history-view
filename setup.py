@@ -24,7 +24,7 @@ setup(
     install_requires=["jinja2", "pyperclip"],
     project_urls={
         "Bug Reports": "https://github.com/semick-dev/history-view/issues",
-        "Source": "https://github.com/senucj0dev/history-view",
+        "Source": "https://github.com/semick-dev/history-view",
     },
     entry_points={"console_scripts": ["hv=hv:console_entry"]},
 )
