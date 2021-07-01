@@ -82,7 +82,7 @@ class HistoryInteractor:
             pass
 
         # everything else we don't understand, just return unknown
-        return InteractionResult(interaction=INTERACTION.UKNOWN)
+        return InteractionResult(interaction=INTERACTION.UNKNOWN)
 
     # a very smart person came up with this methodology https://stackoverflow.com/a/34956791
     def wait_for_input(self):
