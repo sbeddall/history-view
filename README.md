@@ -3,7 +3,7 @@ A little tool to visually browse your console history.
 
 What it looks like to scan through your history now:
     
-![bug_fixed_working](https://user-images.githubusercontent.com/479566/123533695-5b65c200-d6cc-11eb-90e4-94c588de4d92.gif)
+![first_bugfixes](https://user-images.githubusercontent.com/479566/124069729-82383700-d9f1-11eb-9ff4-1fffccd0e7b6.gif)
 
 ### Arguments
 

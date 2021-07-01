@@ -7,7 +7,7 @@ with open("README.md", encoding="utf-8") as f:
 
 setup(
     name="history-view",
-    version="1.0.0",
+    version="1.0.1",
     description="A tiny python application that abstracts viewing/interacting with your console history.",
     long_description=long_description,
     long_description_content_type="text/markdown",

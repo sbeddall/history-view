@@ -1,7 +1,6 @@
 import argparse
 import os
 import sys
-import pdb
 import subprocess
 import re
 import pyperclip
@@ -83,6 +82,12 @@ def console_loop(renderer, copy_to_clip):
         if input_result.result is INTERACTION.FRAME_FORWARD:
             renderer.decrement_frame()
 
+        if input_result.result is INTERACTION.PAGE_BACK:
+            renderer.increment_frame(renderer.frame_size, freeze_cursor=True)
+
+        if input_result.result is INTERACTION.PAGE_FORWARD:
+            renderer.decrement_frame(renderer.frame_size, freeze_cursor=True)
+
         if input_result.result is INTERACTION.ITEM_SELECTED:
             idx = (
                 renderer.selected_index
@@ -96,8 +101,7 @@ def console_loop(renderer, copy_to_clip):
             sys.exit(0)
 
         if input_result.result is INTERACTION.UNKNOWN:
-            print("Unrecognized interaction. Exiting.")
-            sys.exit(1)
+            pass
 
 
 def console_entry():

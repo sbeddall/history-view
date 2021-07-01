@@ -1,6 +1,5 @@
 from jinja2 import Template
 import shutil
-import pdb
 import random
 import textwrap
 import re
@@ -56,10 +55,6 @@ class HistoryRenderer:
         self.current_frame = kwargs.get("start_frame", 0)
         self.previous_frame = None
 
-        # we start at max because the the render happens top down
-        # that means selected starts at
-        self.selected_index = self.frame_size - 1
-
         if not data:
             raise InvalidConfigurationException(
                 "The data passed to the renderer needs to be populated. Renderer saw {} items in data array.".format(
@@ -68,11 +63,11 @@ class HistoryRenderer:
             )
 
         if self.frame_size > len(data):
-            raise InvalidConfigurationException(
-                "Frame size of {} is bigger than the size of the data array {}!".format(
-                    self.frame_size, len(self.data)
-                )
-            )
+            self.frame_size = len(data)
+
+        # we start at max because the the render happens top down
+        # that means selected starts at
+        self.selected_index = self.frame_size - 1
 
     def t_size(self):
         return shutil.get_terminal_size()
@@ -97,6 +92,9 @@ class HistoryRenderer:
     def __rows_proceeding(self, index=None):
         begin_idx = index or self.current_frame
         end_idx = begin_idx + self.frame_size
+
+        if len(self.data) <= self.frame_size:
+            return False
 
         return any(self.data[end_idx:])
 
@@ -211,25 +209,31 @@ class HistoryRenderer:
         begin = index
         end = begin + self.frame_size
 
+        if begin < 0:
+            return self.data
+
         return self.data[begin:end]
 
-    def __process_selected_change(self, positive):
+    def __process_selected_change(self, positive, disable_move):
         """
         Processes the selected index change of a "go up" or "go down" command.
 
         Returns whether or not the selected index actually changes
         """
+        if disable_move:
+            return False
+
         if positive:
             if self.selected_index < (self.frame_size - 1):
                 self.selected_index = self.selected_index + 1
                 return True
         else:
-            if self.selected_index > (self.frame_size - 4):
+            if self.selected_index > 0:
                 self.selected_index = self.selected_index - 1
                 return True
         return False
 
-    def increment_frame(self):
+    def increment_frame(self, increment=1, freeze_cursor=False):
         """
         Advances the frame in the positive direction. Moving first element of viewable frame towards the end.
         Never moves beyond safe bound.
@@ -241,12 +245,13 @@ class HistoryRenderer:
          0                    01
         """
         if not self.current_frame >= (len(self.data) - self.frame_size):
-            self.current_frame += 1
+            self.current_frame += increment
 
-            # we only need to move our frame if the selected index updates (otherwise we'll get a double move)
-            self.current_frame -= self.__process_selected_change(False)
+        process_result = self.__process_selected_change(False, freeze_cursor)
+        if process_result:
+            self.current_frame -= increment
 
-    def decrement_frame(self):
+    def decrement_frame(self, increment=1, freeze_cursor=False):
         """
         Retreats the frame in the negative direction, bringing the first element in frame closer to 0.
         Never moves beyond safe bound.
@@ -257,7 +262,9 @@ class HistoryRenderer:
         [-<--->--------] --> [<--->---------]
          01                   0
         """
-        if self.current_frame > 0 or self.selected_index < self.frame_size - 1:
-            self.current_frame -= 1
+        if self.current_frame > 0 or self.selected_index < self.frame_size - increment:
+            self.current_frame -= increment
 
-            self.current_frame += self.__process_selected_change(True)
+        process_result = self.__process_selected_change(True, freeze_cursor)
+        if process_result:
+            self.current_frame += increment

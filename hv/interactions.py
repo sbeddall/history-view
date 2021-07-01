@@ -1,7 +1,6 @@
 from enum import Enum
 import os
 import sys
-import pdb
 
 
 class INTERACTION(Enum):
@@ -20,6 +19,8 @@ class INTERACTION(Enum):
     FRAME_FORWARD = 3
     UNKNOWN = 4
     EXIT = 5
+    PAGE_BACK = 6
+    PAGE_FORWARD = 7
 
 
 class InteractionResult:
@@ -52,6 +53,12 @@ class HistoryInteractor:
         if char == b"P":
             return InteractionResult(interaction=INTERACTION.FRAME_FORWARD, data=None)
 
+        if char == b"I":
+            return InteractionResult(interaction=INTERACTION.PAGE_BACK, data=None)
+
+        if char == b"Q":
+            return InteractionResult(interaction=INTERACTION.PAGE_FORWARD, data=None)
+
         ## not having data on an ITEM_SELECTED means that we're selecting the current index
         if char == " ":
             return InteractionResult(interaction=INTERACTION.ITEM_SELECTED, data=None)
@@ -75,7 +82,7 @@ class HistoryInteractor:
             pass
 
         # everything else we don't understand, just return unknown
-        return InteractionResult(interaction=INTERACTION.UKNOWN)
+        return InteractionResult(interaction=INTERACTION.UNKNOWN)
 
     # a very smart person came up with this methodology https://stackoverflow.com/a/34956791
     def wait_for_input(self):

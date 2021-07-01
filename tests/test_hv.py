@@ -25,11 +25,11 @@ def test_rdr_good_increment_cases(test_data):
 def test_rdr_bad_increment_cases(test_data):
     very_edge = HistoryRenderer(test_data, frame_size=5, start_frame=5)
     very_edge.increment_frame()
-    assert very_edge.current_frame == 5
+    assert very_edge.current_frame == 4
 
     outside_bounds = HistoryRenderer(test_data, frame_size=5, start_frame=10)
     outside_bounds.increment_frame()
-    assert outside_bounds.current_frame == 10
+    assert outside_bounds.current_frame == 9
 
 
 def test_rdr_good_decrement_cases(test_data):
@@ -84,12 +84,6 @@ def test_rows_preceeding_false_case(test_data):
 
     assert not easy_check._HistoryRenderer__rows_preceeding()
     assert out_of_bounds_check._HistoryRenderer__rows_preceeding()
-
-
-def test_rdr_bad_frame(test_data):
-    with pytest.raises(InvalidConfigurationException) as exception:
-        test_rdr = HistoryRenderer(test_data, frame_size=11)
-    assert "11 is bigger than the size of the data array" in str(exception)
 
 
 def test_rdr_no_data():
