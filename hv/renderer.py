@@ -69,7 +69,6 @@ class HistoryRenderer:
         # that means selected starts at
         self.selected_index = self.frame_size - 1
 
-
     def t_size(self):
         return shutil.get_terminal_size()
 
@@ -96,7 +95,7 @@ class HistoryRenderer:
 
         if len(self.data) <= self.frame_size:
             return False
-        
+
         return any(self.data[end_idx:])
 
     def __calculate_line(self, direction):
@@ -209,7 +208,7 @@ class HistoryRenderer:
         """
         begin = index
         end = begin + self.frame_size
-        
+
         if begin < 0:
             return self.data
 

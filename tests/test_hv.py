@@ -85,6 +85,7 @@ def test_rows_preceeding_false_case(test_data):
     assert not easy_check._HistoryRenderer__rows_preceeding()
     assert out_of_bounds_check._HistoryRenderer__rows_preceeding()
 
+
 def test_rdr_no_data():
     with pytest.raises(InvalidConfigurationException) as exception:
         test_rdr = HistoryRenderer([], frame_size=5)
