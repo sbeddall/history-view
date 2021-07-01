@@ -84,10 +84,10 @@ def console_loop(renderer, copy_to_clip):
             renderer.decrement_frame()
 
         if input_result.result is INTERACTION.PAGE_BACK:
-            renderer.increment_frame(renderer.frame_size)
+            renderer.increment_frame(renderer.frame_size, freeze_cursor=True)
 
         if input_result.result is INTERACTION.PAGE_FORWARD:
-            renderer.decrement_frame(renderer.frame_size)
+            renderer.decrement_frame(renderer.frame_size, freeze_cursor=True)
 
         if input_result.result is INTERACTION.ITEM_SELECTED:
             idx = (
@@ -102,9 +102,7 @@ def console_loop(renderer, copy_to_clip):
             sys.exit(0)
 
         if input_result.result is INTERACTION.UNKNOWN:
-            print("Unrecognized interaction. Exiting.")
-            sys.exit(1)
-
+            pass
 
 def console_entry():
     parser = argparse.ArgumentParser(description="Traverse your console history.")

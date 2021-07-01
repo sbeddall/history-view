@@ -213,12 +213,15 @@ class HistoryRenderer:
 
         return self.data[begin:end]
 
-    def __process_selected_change(self, positive):
+    def __process_selected_change(self, positive, disable_move):
         """
         Processes the selected index change of a "go up" or "go down" command.
 
         Returns whether or not the selected index actually changes
         """
+        if disable_move:
+            return False
+
         if positive:
             if self.selected_index < (self.frame_size - 1):
                 self.selected_index = self.selected_index + 1
@@ -229,7 +232,7 @@ class HistoryRenderer:
                 return True
         return False
 
-    def increment_frame(self, increment = 1):
+    def increment_frame(self, increment = 1, freeze_cursor = False):
         """
         Advances the frame in the positive direction. Moving first element of viewable frame towards the end.
         Never moves beyond safe bound.
@@ -244,9 +247,9 @@ class HistoryRenderer:
             self.current_frame += increment
 
             # we only need to move our frame if the selected index updates (otherwise we'll get a double move)
-            self.current_frame -= self.__process_selected_change(False)
+            self.current_frame -= self.__process_selected_change(False, freeze_cursor)
 
-    def decrement_frame(self, increment = 1):
+    def decrement_frame(self, increment = 1, freeze_cursor = False):
         """
         Retreats the frame in the negative direction, bringing the first element in frame closer to 0.
         Never moves beyond safe bound.
@@ -260,4 +263,4 @@ class HistoryRenderer:
         if self.current_frame > 0 or self.selected_index < self.frame_size - increment:
             self.current_frame -= increment
 
-            self.current_frame += self.__process_selected_change(True)
+            self.current_frame += self.__process_selected_change(True, freeze_cursor)
