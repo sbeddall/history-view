@@ -224,7 +224,7 @@ class HistoryRenderer:
                 self.selected_index = self.selected_index + 1
                 return True
         else:
-            if self.selected_index > (self.frame_size - 4):
+            if self.selected_index > 0:
                 self.selected_index = self.selected_index - 1
                 return True
         return False
