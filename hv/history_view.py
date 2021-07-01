@@ -83,6 +83,12 @@ def console_loop(renderer, copy_to_clip):
         if input_result.result is INTERACTION.FRAME_FORWARD:
             renderer.decrement_frame()
 
+        if input_result.result is INTERACTION.PAGE_BACK:
+            renderer.increment_frame(renderer.frame_size)
+
+        if input_result.result is INTERACTION.PAGE_FORWARD:
+            renderer.decrement_frame(renderer.frame_size)
+
         if input_result.result is INTERACTION.ITEM_SELECTED:
             idx = (
                 renderer.selected_index

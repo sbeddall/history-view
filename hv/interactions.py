@@ -20,6 +20,8 @@ class INTERACTION(Enum):
     FRAME_FORWARD = 3
     UNKNOWN = 4
     EXIT = 5
+    PAGE_BACK = 6
+    PAGE_FORWARD = 7
 
 
 class InteractionResult:
@@ -51,6 +53,15 @@ class HistoryInteractor:
 
         if char == b"P":
             return InteractionResult(interaction=INTERACTION.FRAME_FORWARD, data=None)
+
+        if char == b"H":
+            return InteractionResult(interaction=INTERACTION.FRAME_BACK, data=None)
+
+        if char == b"I":
+            return InteractionResult(interaction=INTERACTION.PAGE_BACK, data=None)
+
+        if char == b"Q":
+            return InteractionResult(interaction=INTERACTION.PAGE_FORWARD, data=None)
 
         ## not having data on an ITEM_SELECTED means that we're selecting the current index
         if char == " ":

@@ -229,7 +229,7 @@ class HistoryRenderer:
                 return True
         return False
 
-    def increment_frame(self):
+    def increment_frame(self, increment = 1):
         """
         Advances the frame in the positive direction. Moving first element of viewable frame towards the end.
         Never moves beyond safe bound.
@@ -241,12 +241,12 @@ class HistoryRenderer:
          0                    01
         """
         if not self.current_frame >= (len(self.data) - self.frame_size):
-            self.current_frame += 1
+            self.current_frame += increment
 
             # we only need to move our frame if the selected index updates (otherwise we'll get a double move)
             self.current_frame -= self.__process_selected_change(False)
 
-    def decrement_frame(self):
+    def decrement_frame(self, increment = 1):
         """
         Retreats the frame in the negative direction, bringing the first element in frame closer to 0.
         Never moves beyond safe bound.
@@ -257,7 +257,7 @@ class HistoryRenderer:
         [-<--->--------] --> [<--->---------]
          01                   0
         """
-        if self.current_frame > 0 or self.selected_index < self.frame_size - 1:
-            self.current_frame -= 1
+        if self.current_frame > 0 or self.selected_index < self.frame_size - increment:
+            self.current_frame -= increment
 
             self.current_frame += self.__process_selected_change(True)
