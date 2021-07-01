@@ -1,6 +1,5 @@
 from jinja2 import Template
 import shutil
-import pdb
 import random
 import textwrap
 import re
@@ -56,10 +55,6 @@ class HistoryRenderer:
         self.current_frame = kwargs.get("start_frame", 0)
         self.previous_frame = None
 
-        # we start at max because the the render happens top down
-        # that means selected starts at
-        self.selected_index = self.frame_size - 1
-
         if not data:
             raise InvalidConfigurationException(
                 "The data passed to the renderer needs to be populated. Renderer saw {} items in data array.".format(
@@ -68,11 +63,12 @@ class HistoryRenderer:
             )
 
         if self.frame_size > len(data):
-            raise InvalidConfigurationException(
-                "Frame size of {} is bigger than the size of the data array {}!".format(
-                    self.frame_size, len(self.data)
-                )
-            )
+            self.frame_size = len(data)
+
+        # we start at max because the the render happens top down
+        # that means selected starts at
+        self.selected_index = self.frame_size - 1
+
 
     def t_size(self):
         return shutil.get_terminal_size()
@@ -98,6 +94,9 @@ class HistoryRenderer:
         begin_idx = index or self.current_frame
         end_idx = begin_idx + self.frame_size
 
+        if len(self.data) <= self.frame_size:
+            return False
+        
         return any(self.data[end_idx:])
 
     def __calculate_line(self, direction):
@@ -210,6 +209,9 @@ class HistoryRenderer:
         """
         begin = index
         end = begin + self.frame_size
+        
+        if begin < 0:
+            return self.data
 
         return self.data[begin:end]
 
@@ -246,8 +248,9 @@ class HistoryRenderer:
         if not self.current_frame >= (len(self.data) - self.frame_size):
             self.current_frame += increment
 
-            # we only need to move our frame if the selected index updates (otherwise we'll get a double move)
-            self.current_frame -= self.__process_selected_change(False, freeze_cursor)
+        process_result = self.__process_selected_change(False, freeze_cursor)
+        if process_result:
+            self.current_frame -= increment
 
     def decrement_frame(self, increment=1, freeze_cursor=False):
         """
@@ -263,4 +266,6 @@ class HistoryRenderer:
         if self.current_frame > 0 or self.selected_index < self.frame_size - increment:
             self.current_frame -= increment
 
-            self.current_frame += self.__process_selected_change(True, freeze_cursor)
+        process_result = self.__process_selected_change(True, freeze_cursor)
+        if process_result:
+            self.current_frame += increment

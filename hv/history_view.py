@@ -1,7 +1,6 @@
 import argparse
 import os
 import sys
-import pdb
 import subprocess
 import re
 import pyperclip
