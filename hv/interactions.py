@@ -54,9 +54,6 @@ class HistoryInteractor:
         if char == b"P":
             return InteractionResult(interaction=INTERACTION.FRAME_FORWARD, data=None)
 
-        if char == b"H":
-            return InteractionResult(interaction=INTERACTION.FRAME_BACK, data=None)
-
         if char == b"I":
             return InteractionResult(interaction=INTERACTION.PAGE_BACK, data=None)
 

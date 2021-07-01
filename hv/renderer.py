@@ -232,7 +232,7 @@ class HistoryRenderer:
                 return True
         return False
 
-    def increment_frame(self, increment = 1, freeze_cursor = False):
+    def increment_frame(self, increment=1, freeze_cursor=False):
         """
         Advances the frame in the positive direction. Moving first element of viewable frame towards the end.
         Never moves beyond safe bound.
@@ -249,7 +249,7 @@ class HistoryRenderer:
             # we only need to move our frame if the selected index updates (otherwise we'll get a double move)
             self.current_frame -= self.__process_selected_change(False, freeze_cursor)
 
-    def decrement_frame(self, increment = 1, freeze_cursor = False):
+    def decrement_frame(self, increment=1, freeze_cursor=False):
         """
         Retreats the frame in the negative direction, bringing the first element in frame closer to 0.
         Never moves beyond safe bound.

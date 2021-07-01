@@ -104,6 +104,7 @@ def console_loop(renderer, copy_to_clip):
         if input_result.result is INTERACTION.UNKNOWN:
             pass
 
+
 def console_entry():
     parser = argparse.ArgumentParser(description="Traverse your console history.")
 
